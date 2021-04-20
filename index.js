@@ -1,5 +1,17 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
+
+morgan.token('person', (req , res) => {
+  if (req.method === 'POST' && res.statusCode !== 400) { return JSON.stringify(req.body) } else {
+  return null }
+})
+
+app.use(
+  morgan(
+    ':method :url :status :res[content-length] - :response-time ms :person',
+  ),
+)
 
 app.use(express.json())
 
@@ -30,48 +42,49 @@ let persons = [
       return Math.floor(Math.random() * 10000);
     }
     
-    app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>')
+    app.get('/', (req, res) => {
+    res.send('<h1>Hello World!</h1>')
   })
   
-  app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  app.get('/api/persons', (req, res) => {
+  res.json(persons)
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
+app.get('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
     const person = persons.find(person => person.id === id)
     if (person) {
-        response.json(person)
+        res.json(person)
     } else {
-        response.status(404).end()
+        res.status(404).end()
       }
   })
   
-  app.delete('/api/notes/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(note => note.id !== id)
-    response.status(204).end()
+  app.delete('/api/notes/:id', (req, res) => {
+    const id = Number(req.params.id)
+    persons = persons.filter(person => person.id !== id)
+    res.status(204).end()
   })
   
-  app.post('/api/persons', (request, response) => {
-    const body = request.body
+  app.post('/api/persons', (req, res) => {
+    const body = req.body
     const filter = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
   
     if (!body.name) {
-      return response.status(400).json({ 
+      return res.status(400).json({ 
         error: 'name is missing' 
       })
     }
 
+
     if (!body.number) {
-        return response.status(400).json({ 
+        return res.status(400).json({ 
           error: 'number is missing' 
         })
       }
 
     if (filter) {
-        return response.status(400).json({ 
+        return res.status(400).json({ 
           error: 'Data already existing' 
         })
       }
@@ -81,18 +94,18 @@ app.get('/api/persons/:id', (request, response) => {
       number: body.number,
       id: generateNewId(),
     }
-  
+
     persons = persons.concat(person)
-    response.json(person)
+    res.json(person)
   })
   
-  app.get('/info', (request, response) => {
+  app.get('/info', (req, res) => {
     const allPersons = persons.length
     const date = new Date()
-    response.send('<p>Phonebook has info for ' + allPersons + ' persons </p> <p>' + date + '</p>' )
+    res.send('<p>Phonebook has info for ' + allPersons + ' persons </p> <p>' + date + '</p>' )
   })
 
-const PORT = 3002
+const PORT = 3000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
