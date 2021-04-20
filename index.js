@@ -1,9 +1,14 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
+
 const app = express()
 
+app.use(cors())
+
+
 morgan.token('person', (req , res) => {
-  if (req.method === 'POST' && res.statusCode !== 400) { return JSON.stringify(req.body) } else {
+  if (req.method === 'POST' ) { return JSON.stringify(req.body) } else {
   return null }
 })
 
@@ -105,7 +110,7 @@ app.get('/api/persons/:id', (req, res) => {
     res.send('<p>Phonebook has info for ' + allPersons + ' persons </p> <p>' + date + '</p>' )
   })
 
-const PORT = 3000
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  const PORT = process.env.PORT || 3001
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
