@@ -1,18 +1,20 @@
+require('dotenv').config()
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const mongoose = require('mongoose')
-const url = `mongodb+srv://FullStackRami:FullStackRami@phonebook.0r9xf.mongodb.net/persons?retryWrites=true&w=majority`;
+const Person = require('./models/person.js')
+// const mongoose = require('mongoose')
+// const url = `mongodb+srv://FullStackRami:FullStackRami@phonebook.0r9xf.mongodb.net/persons?retryWrites=true&w=majority`;
 
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+// mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
 
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: Number,
-  id: Number,
-});
+// const personSchema = new mongoose.Schema({
+//   name: String,
+//   number: Number,
+//   id: Number,
+// });
 
-const Person = mongoose.model("Person", personSchema);
+// const Person = mongoose.model("Person", personSchema);
 
 
 const app = express();
@@ -90,14 +92,16 @@ app.delete("/api/notes/:id", (req, res) => {
   res.status(204).end();
 });
 
-app.post("/api/persons", (req, res) => {
-  const body = req.body;
+
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
   const filter = persons.find(
     (person) => person.name.toLowerCase() === body.name.toLowerCase()
   );
 
   if (!body.name) {
-    return res.status(400).json({
+     return res.status(400).json({
       error: "name is missing",
     });
   }
@@ -113,16 +117,51 @@ app.post("/api/persons", (req, res) => {
       error: "Data already existing",
     });
   }
-
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number,
     id: generateNewId(),
-  };
 
-  persons = persons.concat(person);
-  res.json(person);
-});
+  })
+
+  person.save()
+    .then(savedPerson => { res.json(savedPerson.toJSON()) })
+})
+
+
+// app.post("/api/persons", (req, res) => {
+//   const body = req.body;
+//   const filter = persons.find(
+//     (person) => person.name.toLowerCase() === body.name.toLowerCase()
+//   );
+
+//   if (!body.name) {
+//     return res.status(400).json({
+//       error: "name is missing",
+//     });
+//   }
+
+//   if (!body.number) {
+//     return res.status(400).json({
+//       error: "number is missing",
+//     });
+//   }
+
+//   if (filter) {
+//     return res.status(400).json({
+//       error: "Data already existing",
+//     });
+//   }
+
+//   const person = {
+//     name: body.name,
+//     number: body.number,
+//     id: generateNewId(),
+//   };
+
+//   persons = persons.concat(person);
+//   res.json(person);
+// });
 
 app.get("/info", (req, res) => {
   const allPersons = persons.length;
