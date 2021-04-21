@@ -1,6 +1,19 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const mongoose = require('mongoose')
+const url = `mongodb+srv://FullStackRami:FullStackRami@phonebook.0r9xf.mongodb.net/persons?retryWrites=true&w=majority`;
+
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: Number,
+  id: Number,
+});
+
+const Person = mongoose.model("Person", personSchema);
+
 
 const app = express();
 app.use(express.static("build"));
@@ -54,9 +67,12 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello World!</h1>");
 });
 
-app.get("/api/persons", (req, res) => {
-  res.json(persons);
-});
+app.get('/api/persons', (req, res) => {
+  Person.find({}).then(persons => {
+    res.json(persons)
+  })
+})
+
 
 app.get("/api/persons/:id", (req, res) => {
   const id = Number(req.params.id);
