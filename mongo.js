@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const password = process.argv[2];
-const url = `mongodb+srv://FullStackRami:FullStackRami@phonebook.0r9xf.mongodb.net/persons?retryWrites=true&w=majority`;
+const url = `mongodb+srv://FullStackRami:${password}@phonebook.0r9xf.mongodb.net/persons?retryWrites=true&w=majority`;
 
 mongoose.connect(url, {
   useNewUrlParser: true,
@@ -32,7 +32,7 @@ if (process.argv.length > 3) {
     number: process.argv[4],
   });
 
-  person.save().then((result) => {
+  person.save().then(() => {
     console.log(
       `Added ${process.argv[3]} - number: ${process.argv[4]} to phonebook`
     );
